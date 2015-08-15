@@ -74,6 +74,7 @@ class spider:
                 data = data.decode(self.decodeType)
                 self.data = data
             except UnicodeEncodeError:
+                tag = 1
                 print('unicode data error, analysis url in another way')
                 try:
                     temp = re.split('_',self.url)
@@ -85,6 +86,17 @@ class spider:
                     data = urllib.request.urlopen(url_temp,data = None,timeout = 1).read()
                     data = data.decode(self.decodeType)
                     self.data = data
+                except Exception as e:
+                    tag = 0
+                    print('Error: when run run in spider class')
+                    print(e)
+            except UnicodeDecodeError:
+                tag = 1
+                print('unicode Decode error, try another decodetype')
+                try:
+                  data = urllib.request.urlopen(self.url,data = None,timeout = 1).read()
+                  data = data.decode('gbk')
+                  self.data = data
                 except Exception as e:
                     tag = 0
                     print('Error: when run run in spider class')
@@ -444,11 +456,11 @@ def main():
 
     time.clock()
     analysisHomepage()
-    print(listPage)
-    print(listCate)
+    #print(listPage)
+    #print(listCate)
     for i in range(len(listPage)):
-        if getDetailListPage(listPage[i+74]):
-            Gcategory = listCate[i+74]
+        if getDetailListPage(listPage[i+82]):
+            Gcategory = listCate[i+82]
             getData()
             Gcategory = None
             print(time.clock())
@@ -457,5 +469,5 @@ def main():
         GdetailListPage = []
 
     writer.close()
-    
+
 main()
