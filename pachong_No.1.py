@@ -74,14 +74,21 @@ class spider:
                 data = data.decode(self.decodeType)
                 self.data = data
             except UnicodeEncodeError:
-                temp = re.split('_',self.url)
-                url_temp = temp[0]+temp[1]
-                for i in temp[2:]:
-                    a = urllib.parse.quote(i)
-                    url_temp = url_temp+'_'+a
-                data = urllib.request.urlopen(url_temp,data = None,timeout = 1).read()
-                data = data.decode(self.decodeType)
-                self.data = data
+                print('unicode data error, analysis url in another way')
+                try:
+                    temp = re.split('_',self.url)
+                    url_temp = temp[0]+'_'+temp[1]
+                    for i in temp[2:]:
+                        a = urllib.parse.quote(i)
+                        url_temp = url_temp+'_'+a
+                    print(url_temp)
+                    data = urllib.request.urlopen(url_temp,data = None,timeout = 1).read()
+                    data = data.decode(self.decodeType)
+                    self.data = data
+                except Exception as e:
+                    tag = 0
+                    print('Error: when run run in spider class')
+                    print(e)
             except Exception as e:
                 tag = 0
                 print('Error: when run run in spider class')
@@ -98,9 +105,15 @@ class spider:
                 data = data.decode('gbk')
                 self.data = data
             except Exception as e:
-                tag = 0
-                print('Error: when run runZlib in spider class')
-                print(e)
+                try:
+                    tag = 1
+                    data = urllib.request.urlopen(self.url,data = None,timeout = 1).read()
+                    data = data.decode('gbk')
+                    self.data = data
+                except Exception as e:
+                    tag = 0
+                    print('Error: when run runZlib in spider class')
+                    print(e)
         return data
 
 
@@ -256,32 +269,42 @@ def getDetailListPage(url):
     
     Spider = spider(url)
     data = Spider.run()
+    
+    #file = open('testURLCode.txt','w+')
+    #file.write(data)
+    #file.close()
 
     Snaker = snaker(reStr,data)
     data2 = Snaker.runSearch()
     if not data2:
-        print('not list page')
-        print('url: '+url)
-        return False
-        Snaker.clear()
-        Snaker.setReStr(reStrSearch)
-        Snaker.setData(data)
-        data2 = Snaker.runSearch()
-        if not data2:
-            print('url error while getting list&search page SKU number')
+        if url[7] == 'l' or url[7] == 'L':
             GdetailListPage.append(url)
-            return
+            print('get list page number DONE')
+            return True
+        else:
+            print('not list page')
+            print('url: '+url)
+        return False
+            #Snaker.clear()
+            #Snaker.setReStr(reStrSearch)
+            #Snaker.setData(data)
+            #data2 = Snaker.runSearch()
+            #if not data2:
+                #print('url error while getting list&search page SKU number')
+                #GdetailListPage.append(url)
+                #return
 
     Snaker.clear()
     Snaker.setReStr(reStr2)
     Snaker.setData(data2)
     num = Snaker.runSearch()
+
+    print(data2)
     
     for i in range(int(num)):
         GdetailListPage.append(url+'&page='+str(i+1))
     print('get list page number DONE')
     return True
-
 
 def getData():
     global GdetailListPage
@@ -340,7 +363,7 @@ def getData():
         priceURL = 'http://p.3.cn/prices/mgets?&callback=jQuery2864965&my=list_price&type=1&area=1_72_4137_0&skuIds='
         for k in GID:
             priceURL += 'J_'+str(k)+'%2C'
-        print(priceURL)
+        #print(priceURL)
         Spider.clear()
         Spider.setURL(priceURL)
         tag = 0
@@ -365,7 +388,6 @@ def getData():
         clear()
     clear()
     GdetailListPage = []
-
 
 def writeData():
     global GdetailListPage
@@ -417,8 +439,8 @@ def main():
     time.clock()
     analysisHomepage()
     for i in range(len(listPage)):
-        if getDetailListPage(listPage[i+27]):
-            Gcategory = listCate[i+27]
+        if getDetailListPage(listPage[i+28]):
+            Gcategory = listCate[i+28]
             getData()
             Gcategory = None
             print(time.clock())
@@ -427,5 +449,5 @@ def main():
         GdetailListPage = []
 
     writer.close()
-        
+
 main()
