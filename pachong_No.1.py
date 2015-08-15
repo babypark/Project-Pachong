@@ -298,13 +298,18 @@ def getDetailListPage(url):
     Snaker.setReStr(reStr2)
     Snaker.setData(data2)
     num = Snaker.runSearch()
-
-    print(data2)
     
-    for i in range(int(num)):
-        GdetailListPage.append(url+'&page='+str(i+1))
+    if 'page=' in url:
+        for i in range(int(num)):
+            temp_str = 'page='+str(i)
+            temp_url = url.replace('page=1',temp_str)
+            GdetailListPage.append(temp_url)
+    else:
+        for i in range(int(num)):
+            GdetailListPage.append(url+'&page='+str(i+1))
     print('get list page number DONE')
     return True
+
 
 def getData():
     global GdetailListPage
@@ -389,6 +394,7 @@ def getData():
     clear()
     GdetailListPage = []
 
+
 def writeData():
     global GdetailListPage
     global GID
@@ -438,9 +444,11 @@ def main():
 
     time.clock()
     analysisHomepage()
+    print(listPage)
+    print(listCate)
     for i in range(len(listPage)):
-        if getDetailListPage(listPage[i+28]):
-            Gcategory = listCate[i+28]
+        if getDetailListPage(listPage[i+74]):
+            Gcategory = listCate[i+74]
             getData()
             Gcategory = None
             print(time.clock())
@@ -449,5 +457,5 @@ def main():
         GdetailListPage = []
 
     writer.close()
-
+    
 main()
